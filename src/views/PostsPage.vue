@@ -82,7 +82,8 @@ onMounted(async () => {
 	}
 }
 .posts-container{
-	width: 60%;
+	width: 70%;
+	min-width: 600px;
 	margin: auto;
 	display: flex;
 	flex-direction: column;

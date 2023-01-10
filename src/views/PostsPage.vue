@@ -5,17 +5,15 @@
 	</div>
 
 	<div class="posts-container" v-if="posts">
-		<TransitionGroup>
-			<post v-for="post in posts" :key="post.id" :post="post" :comments="getCommentsByPostId(post.id)"></post>
-		</TransitionGroup>
+		<post v-for="post in posts" :key="post.id" :post="post" :comments="getCommentsByPostId(post.id)"></post>
 	</div>
 
-	<div class="pagination" v-if="allPosts">
-		<div class="pagination__item" @click="paginatePosts(currentPaginatePostsCounter-1)">Prev</div>
-		<div class="pagination__item" v-for="number in (allPosts.length/10)" :class="{'pagination__item--active': currentPaginatePostsCounter == number}" @click="paginatePosts(number)">
+	<div class="pagination" v-if="allPosts && filteredPosts.length/10 > 1">
+		<div class="pagination__item" :class="{'pagination__item--disabled':currentPaginatePostsCounter==1 }" @click="paginatePosts(currentPaginatePostsCounter-1)">Prev</div>
+		<div class="pagination__item" v-for="number in (Math.ceil(filteredPosts.length/10))" :class="{'pagination__item--active': currentPaginatePostsCounter == number}" @click="paginatePosts(number)">
 			{{ number }}
 		</div>
-		<div class="pagination__item" @click="paginatePosts(currentPaginatePostsCounter+1)">Next</div>
+		<div class="pagination__item" :class="{'pagination__item--disabled' :currentPaginatePostsCounter==(Math.ceil(filteredPosts.length/10)) }" @click="paginatePosts(currentPaginatePostsCounter+1)">Next</div>
 	</div>
 </template>
 
@@ -26,6 +24,7 @@ import { getComments } from "@/composables/API/comments";
 import post from '@/components/post.vue';
 
 let allPosts = ref([]),
+	filteredPosts = ref([]),
 	allComments = ref([]),
 	posts = ref([]),
 	titleSearchRef = ref(null),
@@ -36,23 +35,28 @@ function getCommentsByPostId(postId){
 }
 
 function onTitleFilter(e){
-	if(titleSearchRef.value.value.length) 
-		posts.value = allPosts.value.filter(el => el.title.includes(titleSearchRef.value.value));
-	else
-		posts.value = allPosts.value.slice((currentPaginatePostsCounter.value-1) * 10, currentPaginatePostsCounter.value * 10);
+	if(titleSearchRef.value.value.length) {
+		filteredPosts.value = allPosts.value.filter(el => el.title.includes(titleSearchRef.value.value));
+		posts.value = filteredPosts.value.slice(0,10);
+	}
+	else {
+		filteredPosts.value = allPosts.value;
+		posts.value = filteredPosts.value.slice((currentPaginatePostsCounter.value-1) * 10, currentPaginatePostsCounter.value * 10);
+	}
+	currentPaginatePostsCounter.value = 1;
 }
 
 function paginatePosts(pageNumber){
 	currentPaginatePostsCounter.value = pageNumber;
-	posts.value = allPosts.value.slice((currentPaginatePostsCounter.value-1) * 10, currentPaginatePostsCounter.value * 10);
+	posts.value = filteredPosts.value.slice((currentPaginatePostsCounter.value-1) * 10, currentPaginatePostsCounter.value * 10);
 }
 
 onMounted(async () => {
 	allPosts.value = await getPosts();
+	filteredPosts.value = allPosts.value;
 	posts.value = allPosts.value.slice(0,10);
 
 	allComments.value = await getComments();
-	console.log(posts.value);
 });
 </script>
 
@@ -111,6 +115,10 @@ onMounted(async () => {
 		background-color: #f6f6f0;
 		transition: .5s;
 		cursor: pointer;
+		&--disabled{
+			cursor: not-allowed;
+			background-color: #808080 !important;
+		}
 		&:hover, &--active{
 			background-color: #dedeca;
 		}

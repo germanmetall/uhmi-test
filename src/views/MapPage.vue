@@ -44,7 +44,6 @@ function importMarkers(){
 }
 
 function onMapClick(e){
-	console.log(e.latlng);
 	lat.value = e.latlng.lat;
 	lng.value = e.latlng.lng;
 	popupRef.value.isOpened = true;

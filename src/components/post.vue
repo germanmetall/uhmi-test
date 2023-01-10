@@ -12,13 +12,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import Chart from 'chart.js/auto'
 
 let props = defineProps(['post', 'comments']);
 
 let chartRef = ref(null),
-    chartContainerRef = ref(null);
+    chartContainerRef = ref(null),
+    isInited = false;
 
 function toggleExpand(){
     chartContainerRef.value.style.maxHeight = chartContainerRef.value.style.maxHeight!='350px' ? '350px': 0;
@@ -32,20 +33,25 @@ function initChart(){
             datasets: [
                 {
                     data: props.comments.map(el => el.email.length),
-                    label: 'Number of letters in email'
+                    label: 'Number of symbols in email'
                 }
             ]
         },
         options: {responsive: false},
     });
+    isInited = true;
 }
 
+onUnmounted(() => {
+
+})
+
 watch(() => props.comments, () => {
-    initChart();
+    if(!isInited) initChart();
 })
 
 onMounted(() => {
-    if(props.comments.length) initChart();
+    if(props.comments.length && !isInited) initChart();
 })
 </script>
 

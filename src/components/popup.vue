@@ -39,7 +39,6 @@ function addMarker(){
         return alert("Enter all fields!");
 
     let prevMarkers = JSON.parse(localStorage.getItem("markers"));
-    console.log(prevMarkers);
     if(prevMarkers){
         localStorage.setItem("markers", JSON.stringify([
             ...prevMarkers,

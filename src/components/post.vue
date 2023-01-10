@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Chart from 'chart.js/auto'
 
 let props = defineProps(['post', 'comments']);
@@ -24,8 +24,7 @@ function toggleExpand(){
     chartContainerRef.value.style.maxHeight = chartContainerRef.value.style.maxHeight!='350px' ? '350px': 0;
 }
 
-watch(() => props.comments, () => {
-    console.log(props.comments.map(el => el.email.length));
+function initChart(){
     new Chart(chartRef.value, {
         type: 'bar',
         data: {
@@ -39,6 +38,14 @@ watch(() => props.comments, () => {
         },
         options: {responsive: false},
     });
+}
+
+watch(() => props.comments, () => {
+    initChart();
+})
+
+onMounted(() => {
+    if(props.comments.length) initChart();
 })
 </script>
 

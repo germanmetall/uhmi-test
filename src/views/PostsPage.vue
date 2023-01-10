@@ -11,11 +11,11 @@
 	</div>
 
 	<div class="pagination" v-if="allPosts">
-		<div class="pagination__item" @click="paginatePosts(currentPaginatePostsCounter--)">Prev</div>
+		<div class="pagination__item" @click="paginatePosts(currentPaginatePostsCounter-1)">Prev</div>
 		<div class="pagination__item" v-for="number in (allPosts.length/10)" :class="{'pagination__item--active': currentPaginatePostsCounter == number}" @click="paginatePosts(number)">
 			{{ number }}
 		</div>
-		<div class="pagination__item" @click="paginatePosts(currentPaginatePostsCounter++)">Next</div>
+		<div class="pagination__item" @click="paginatePosts(currentPaginatePostsCounter+1)">Next</div>
 	</div>
 </template>
 
@@ -39,13 +39,12 @@ function onTitleFilter(e){
 	if(titleSearchRef.value.value.length) 
 		posts.value = allPosts.value.filter(el => el.title.includes(titleSearchRef.value.value));
 	else
-		posts.value = allPosts.value.slice(currentPaginatePostsCounter.value * 10, (currentPaginatePostsCounter.value+1) * 10);
+		posts.value = allPosts.value.slice((currentPaginatePostsCounter.value-1) * 10, currentPaginatePostsCounter.value * 10);
 }
 
 function paginatePosts(pageNumber){
-	console.log(currentPaginatePostsCounter.value, pageNumber);
 	currentPaginatePostsCounter.value = pageNumber;
-	posts.value = allPosts.value.slice(currentPaginatePostsCounter.value * 10, (currentPaginatePostsCounter.value+1) * 10);
+	posts.value = allPosts.value.slice((currentPaginatePostsCounter.value-1) * 10, currentPaginatePostsCounter.value * 10);
 }
 
 onMounted(async () => {
@@ -54,28 +53,6 @@ onMounted(async () => {
 
 	allComments.value = await getComments();
 	console.log(posts.value);
-
-	const ctx = document.getElementById('chart');
-
-	return;
-	new Chart(ctx, {
-		type: 'bar',
-		data: {
-		labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-		datasets: [{
-			label: '# of Votes',
-			data: [12, 19, 3, 5, 2, 3],
-			borderWidth: 1
-		}]
-		},
-		options: {
-		scales: {
-			y: {
-			beginAtZero: true
-			}
-		}
-		}
-	});
 });
 </script>
 
